@@ -1,7 +1,7 @@
 Python Su Doku Solver
 =====================
 
-Note this appears to work on most Su Doku's, but not the 'Super Fiendish' ones published occasionally by The Times. Maybe you can improve! A brief blog post explaining can be found at *LINK*.
+Note this appears to work on most Su Doku's, but not the 'Super Fiendish' ones published occasionally by The Times. Maybe you can improve! A brief blog post explaining can be found at https://davidabelman.wordpress.com/2015/03/03/su-doku-challenge/.
 
 Instructions
 -----------
