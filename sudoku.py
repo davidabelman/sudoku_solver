@@ -13,6 +13,105 @@ class Board:
 		self.time_end = None
 		self.board_complete = False
 
+	def load_board(self, filename):
+		"""
+		Loads board from csv file, deletes all previous workings
+		"""
+		self.initial_array = self.csv_to_array(filename)
+		count = 0
+		for entry in self.initial_array:
+			row_number = count/9  # Integer division, will be 0-8
+			col_number = count%9
+			block_number = self.lookup_block_number(row_number, col_number)
+			cell = Cell(entry, row_number, col_number, block_number)
+			self.cell_array.append(cell)
+			count += 1
+		self.board_loaded = True
+
+	def csv_to_array(self, filename):
+		"""
+		Given filename, converts 9x9 squares into Python array
+		"""
+		try:
+			f = open(filename, 'r')
+		except:
+			print "{} is not a valid filename - please try again.".format(filename)
+			sys.exit()
+		self.filename = filename
+		data = f.readlines()
+		lines = [x.replace('\n','').split(',') for x in data]
+		output = []
+		for line in lines:
+			for cell in line:
+				if cell == '':
+					output.append(None)
+				else:
+					output.append(int(cell))
+		return output
+
+	def lookup_block_number(self, row_number, col_number):
+		"""
+		Given a row number and a col number, look up a block number, return it
+		"""
+		if row_number <= 2 and col_number <= 2:
+			return 0
+		if row_number <= 2 and col_number <= 5:
+			return 1
+		if row_number <= 2 and col_number <= 8:
+			return 2
+		if row_number <= 5 and col_number <= 2:
+			return 3
+		if row_number <= 5 and col_number <= 5:
+			return 4
+		if row_number <= 5 and col_number <= 8:
+			return 5
+		if row_number <= 8 and col_number <= 2:
+			return 6
+		if row_number <= 8 and col_number <= 5:
+			return 7
+		if row_number <= 8 and col_number <= 8:
+			return 8
+
+	def get_row(self, row_number):
+		"""
+		Returns list of cells in a certain row
+		"""
+		return self.get_9_cells(row_number, 'row')
+
+	def get_col(self, col_number):
+		"""
+		Returns list of cells in a certain col
+		"""
+		return self.get_9_cells(col_number, 'col')
+
+	def get_block(self, block_number):
+		"""
+		Returns list of cells in a certain block
+		"""
+		return self.get_9_cells(block_number, 'block')
+
+	def get_9_cells(self, index, cell_collection_type):
+		"""
+		Helper function, cell_collection_type must be one of row, col, block
+		"""
+		out = []
+		for cell in self.cell_array:
+			if cell.get_index(cell_collection_type) == index:
+				out.append(cell)
+		return out
+
+	def print_board_to_screen(self):
+		"""
+		Print current board to screen (note Terminal may need to be zoomed out to see properly)
+		"""
+		for index in range(len(self.cell_array)):
+			if index%3==100:
+				print self.cell_array[index].string_rep()
+			else:
+				print self.cell_array[index].string_rep(),
+			if index%9==8:
+				print "\n"
+
 	def solve_board(self):
 		"""
 		Solves whichever board is currently loaded
@@ -100,7 +199,7 @@ class Board:
 			# Create copy of the board and insert the trial value
 			duplicate_B = copy.deepcopy(self)
 			duplicate_B.cell_array[index_of_cell_to_guess].finalise_cell(option)
-			
+
 			# Mark this as a guess
 			duplicate_B.cell_array[index_of_cell_to_guess].filled = 'Guess'
 			
@@ -138,105 +237,6 @@ class Board:
 				minimal_number_of_options = number_of_options
 				minimal_index = index
 		return minimal_index
-
-	def csv_to_array(self, filename):
-		"""
-		Given filename, converts 9x9 squares into Python array
-		"""
-		try:
-			f = open(filename, 'r')
-		except:
-			print "{} is not a valid filename - please try again.".format(filename)
-			sys.exit()
-		self.filename = filename
-		data = f.readlines()
-		lines = [x.replace('\n','').split(',') for x in data]
-		output = []
-		for line in lines:
-			for cell in line:
-				if cell == '':
-					output.append(None)
-				else:
-					output.append(int(cell))
-		return output
-
-	def load_board(self, filename):
-		"""
-		Loads board from csv file, deletes all previous workings
-		"""
-		self.initial_array = self.csv_to_array(filename)
-		count = 0
-		for entry in self.initial_array:
-			row_number = count/9  # Integer division, will be 0-8
-			col_number = count%9
-			block_number = self.lookup_block_number(row_number, col_number)
-			cell = Cell(entry, row_number, col_number, block_number)
-			self.cell_array.append(cell)
-			count += 1
-		self.board_loaded = True
-
-	def lookup_block_number(self, row_number, col_number):
-		"""
-		Given a row number and a col number, look up a block number, return it
-		"""
-		if row_number <= 2 and col_number <= 2:
-			return 0
-		if row_number <= 2 and col_number <= 5:
-			return 1
-		if row_number <= 2 and col_number <= 8:
-			return 2
-		if row_number <= 5 and col_number <= 2:
-			return 3
-		if row_number <= 5 and col_number <= 5:
-			return 4
-		if row_number <= 5 and col_number <= 8:
-			return 5
-		if row_number <= 8 and col_number <= 2:
-			return 6
-		if row_number <= 8 and col_number <= 5:
-			return 7
-		if row_number <= 8 and col_number <= 8:
-			return 8
-
-	def get_row(self, row_number):
-		"""
-		Returns list of cells in a certain row
-		"""
-		return self.get_9_cells(row_number, 'row')
-
-	def get_col(self, col_number):
-		"""
-		Returns list of cells in a certain col
-		"""
-		return self.get_9_cells(col_number, 'col')
-
-	def get_block(self, block_number):
-		"""
-		Returns list of cells in a certain block
-		"""
-		return self.get_9_cells(block_number, 'block')
-
-	def get_9_cells(self, index, cell_collection_type):
-		"""
-		Helper function, cell_collection_type must be one of row, col, block
-		"""
-		out = []
-		for cell in self.cell_array:
-			if cell.get_index(cell_collection_type) == index:
-				out.append(cell)
-		return out
-
-	def print_board_to_screen(self):
-		"""
-		Print current board to screen (note Terminal may need to be zoomed out to see properly)
-		"""
-		for index in range(len(self.cell_array)):
-			if index%3==100:
-				print self.cell_array[index].string_rep()
-			else:
-				print self.cell_array[index].string_rep(),
-			if index%9==8:
-				print "\n"
 
 	def strike_options_all(self):
 		"""
@@ -397,7 +397,6 @@ class Board:
 
 		# No conflict found, return False
 		return False
-
 
 	def check_board_solved(self):
 		"""
